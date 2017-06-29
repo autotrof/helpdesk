@@ -112,17 +112,17 @@
                   <h4 class="modal-title" id="myModalLabel2">Login Form</h4>
                 </div>
                 <div class="modal-body">
-                  <form class="form-horizontal">
+                  <form id="form-login" class="form-horizontal">
                     <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
-                      <input type="text" class="form-control has-feedback-left" placeholder="Username">
+                      <input type="text" id="username-login" class="form-control has-feedback-left" placeholder="Username">
                       <span class="fa fa-user form-control-feedback left" aria-hidden="true"></span>
                     </div>
                     <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
-                      <input type="password" class="form-control has-feedback-left" placeholder="Password">
+                      <input type="password" id="password-login" class="form-control has-feedback-left" placeholder="Password">
                       <span class="fa fa-asterisk form-control-feedback left" aria-hidden="true"></span>
                     </div>
                     <div class="col-md-12">
-                      <button type="button" class="btn btn-primary btn-sm pull-right">Masuk</button>
+                      <button type="submit" id="button-login" class="btn btn-primary btn-sm pull-right">Masuk</button>
                     </div>
                   </form>
                 </div>
@@ -193,6 +193,21 @@
         $(function(){
           $("#menu_toggle").trigger( "click" );
           $("#menu_toggle").remove();
+        });
+        $("#form-login").submit(function(e){
+          e.preventDefault();
+          var username = $("#username-login").val().trim();
+          var password = $("#password-login").val().trim();
+          $("#button-login").addClass('disable');
+          $.ajax({
+            url:"{{route('login')}}",
+            method:"POST",
+            data:{username:username,password:password,_token:"{{csrf_token()}}"},
+            success:function(res){
+              $("#button-login").removeClass('disable');
+              console.log(res);
+            }
+          });
         });
       </script>
     @endif

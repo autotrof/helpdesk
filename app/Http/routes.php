@@ -18,6 +18,10 @@ Route::get('/', [
 Route::post('/',[
 	'uses'=>'LaporanController@addLaporan'
 ]);
+Route::post('/login',[
+	'uses'=>'GeneralController@login',
+	'as'=>'login'
+]);
 Route::get('/laporan_data',[
 	'uses'=>'LaporanController@getAll',
 	'as'=>'laporan_get_all'

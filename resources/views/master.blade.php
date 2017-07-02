@@ -26,10 +26,11 @@
     <link href="/vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet"/>
     <!-- bootstrap-daterangepicker -->
     <link href="/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
-
+    <!-- Select2 -->
+    <link rel="stylesheet" href="/vendors/select2/dist/css/select2.min.css">
+    @yield('style')
     <!-- Custom Theme Style -->
     <link href="/build/css/custom.min.css" rel="stylesheet">
-    @yield('style')
   </head>
 
   <body class="nav-md">
@@ -85,8 +86,8 @@
                     <span class=" fa fa-angle-down"></span>
                   </a>
                   <ul class="dropdown-menu dropdown-usermenu pull-right">
-                    <li><a href="login.html"><i class="fa fa-gears pull-right"></i> Pengaturan</a></li>
-                    <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
+                    <li data-toggle="modal" data-target="#setting-modal"><a href="#pengaturan"><i class="fa fa-gears pull-right"></i> Pengaturan</a></li>
+                    <li><a href="{{route('logout')}}"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                   </ul>
                 </li>
                 @else
@@ -99,11 +100,13 @@
         <!-- /top navigation -->
 
         <!-- page content -->
+        <div class="right_col" role="main">
         @yield('content')
+        </div>
         <!-- /page content -->
         @if(session('role')!='intern')
           <div id="login-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-sm">
+            <div class="modal-dialog">
               <div class="modal-content">
 
                 <div class="modal-header">
@@ -112,7 +115,7 @@
                   <h4 class="modal-title" id="myModalLabel2">Login Form</h4>
                 </div>
                 <div class="modal-body">
-                  <form id="form-login" class="form-horizontal">
+                  <form method="post" id="form-login" class="form-horizontal">
                     <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
                       <input type="text" id="username-login" class="form-control has-feedback-left" placeholder="Username">
                       <span class="fa fa-user form-control-feedback left" aria-hidden="true"></span>
@@ -123,6 +126,37 @@
                     </div>
                     <div class="col-md-12">
                       <button type="submit" id="button-login" class="btn btn-primary btn-sm pull-right">Masuk</button>
+                    </div>
+                  </form>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        @endif
+        @if(session('role')=='intern')
+          <div id="setting-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                  </button>
+                  <h4 class="modal-title" id="myModalLabel2">Pengaturan</h4>
+                </div>
+                <div class="modal-body">
+                  <p>Form untuk mengganti sandi</p>
+                  <form id="form-setting" method="post" action="{{route('intern.setting')}}" class="form-horizontal">
+                    <input type="hidden" name="_token" value="{{csrf_token()}}" id="token-setting">
+                    <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
+                      <input type="text" id="username-setting" class="form-control has-feedback-left" value="{{session('username')}}" name="username" placeholder="Username">
+                      <span class="fa fa-user form-control-feedback left" aria-hidden="true"></span>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
+                      <input type="password" name="password" id="password-setting" class="form-control has-feedback-left" placeholder="Biarkan kosong jika tidak dirubah">
+                      <span class="fa fa-asterisk form-control-feedback left" aria-hidden="true"></span>
+                    </div>
+                    <div class="col-md-12">
+                      <button type="submit" id="button-setting-submit" class="btn btn-primary btn-sm pull-right">Simpan</button>
                     </div>
                   </form>
                 </div>
@@ -160,6 +194,8 @@
     <script src="/vendors/iCheck/icheck.min.js"></script>
     <!-- Skycons -->
     <script src="/vendors/skycons/skycons.js"></script>
+    <!-- Select2 -->
+    <script src="/vendors/select2/dist/js/select2.full.js"></script>
     <!-- Flot -->
     <!--
     <script src="/vendors/Flot/jquery.flot.js"></script>
@@ -186,31 +222,56 @@
     <script src="/vendors/moment/min/moment.min.js"></script>
     <script src="/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
 
+    <script src="/js/jquery.form.min.js"></script>
+
+    @yield('scripts')
     <!-- Custom Theme Scripts -->
     <script src="/build/js/custom.min.js"></script>
-    @if(session('role')!='intern')
-      <script type="text/javascript">
-        $(function(){
+    <script type="text/javascript">
+      $(".select2").select2();
+      
+      $(function(){
+        @if(session('role')!='intern')
           $("#menu_toggle").trigger( "click" );
-          $("#menu_toggle").remove();
-        });
-        $("#form-login").submit(function(e){
-          e.preventDefault();
-          var username = $("#username-login").val().trim();
-          var password = $("#password-login").val().trim();
-          $("#button-login").addClass('disable');
-          $.ajax({
-            url:"{{route('login')}}",
-            method:"POST",
-            data:{username:username,password:password,_token:"{{csrf_token()}}"},
-            success:function(res){
-              $("#button-login").removeClass('disable');
-              console.log(res);
-            }
+            $("#form-login").submit(function(e){
+                e.preventDefault();
+                var username = $("#username-login").val().trim();
+                var password = $("#password-login").val().trim();
+                $("#button-login").addClass('disable');
+                $.ajax({
+                    url:"{{route('login')}}",
+                    method:"POST",
+                    data:{username:username,password:password,_token:"{{csrf_token()}}"},
+                    success:function(res){
+                        $("#button-login").removeClass('disable');
+                        if(res.hasil===true){
+                            location.reload();
+                        }else{
+                            alert('username atau password salah');
+                        }
+                    }
+                });
+            });
+        @endif
+        @if(session('role')=='intern')
+          $("#form-setting").submit(function(e){
+            e.preventDefault();
+            $("#button-setting-submit").prop('disabled',true);
+            var theForm = $(this);
+            theForm.ajaxSubmit({
+              method:"POST",
+              success:function(res){
+                $("#button-setting-submit").prop('disabled',true);
+                if(res.result===true){
+
+                }else{
+                  alert(res.message);
+                }
+              }
+            });
           });
-        });
-      </script>
-    @endif
-    @yield('scripts')
+        @endif
+      });
+    </script>
   </body>
 </html>

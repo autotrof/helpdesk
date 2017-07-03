@@ -13,7 +13,55 @@
 					<div class="clearfix"></div>
 				</div>
 				<div class="x_content">
-					<div id="mainb" style="height:450px;"></div>
+					<div class="row">
+						<div class="col-sm-8 col-md-8 col-xs-12">
+							<div id="mainb" style="height:450px;"></div>	
+						</div>
+						<div class="col-sm-4 col-md-4 col-xs-12">
+							<section class="panel">
+								<div class="x_title">
+									<h2>Informasi Dasar</h2>
+									<div class="clearfix"></div>
+								</div>
+								<div class="panel-body">
+									<table class="with-padding">
+										<tr>
+											<td valign="top">Laporan Terbanyak</td>
+											<td valign="top"> : </td>
+											<td valign="top">{{$max_keluhan[0]->kode}} ({{$max_keluhan[0]->listLaporan->count()}})</td>
+										</tr>
+										<tr>
+											<td valign="top">Laporan Paling Sedikit</td>
+											<td valign="top"> : </td>
+											<td valign="top">{{$min_keluhan[0]->kode}} ({{$min_keluhan[0]->listLaporan->count()}})</td>
+										</tr>
+										<tr>
+											<td valign="top">Laporan Paling Banyak Selesai</td>
+											<td valign="top"> : </td>
+											<td valign="top">{{$max_keluhan_selesai[0]->kode}} ({{$max_keluhan_selesai[0]->listSolvedLaporan->count()}})</td>
+										</tr>
+										<tr>
+											<td valign="top">Laporan Paling Sedikit Selesai</td>
+											<td valign="top"> : </td>
+											<td valign="top">{{$min_keluhan_selesai[0]->kode}} ({{$min_keluhan_selesai[0]->listSolvedLaporan->count()}})</td>
+										</tr>
+										<?php /*
+										<tr>
+											<td>Laporan Paling Banyak Belum Selesai</td>
+											<td> : </td>
+											<td>{{$max_keluhan_belum_selesai[0]->kode}} ({{$max_keluhan_belum_selesai[0]->listOtherLaporan->count()}} Laporan)</td>
+										</tr>
+										<tr>
+											<td>Laporan Paling Sedikit Belum Selesai</td>
+											<td> : </td>
+											<td>{{$min_keluhan_belum_selesai[0]->kode}} ({{$min_keluhan_belum_selesai[0]->listOtherLaporan->count()}} Laporan)</td>
+										</tr>
+										*/ ?>
+									</table>
+								</div>
+							</section>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -132,10 +180,10 @@
 		  	};
 		  var echartBar = echarts.init(document.getElementById('mainb'), theme);
 		  echartBar.setOption({
-			title: {
-			  text: 'Data Perbandingan',
-			  subtext: 'Jumlah keluhan terbanyak & paling banyak terselesaikan'
-			},
+			// title: {
+			//   text: 'Data Perbandingan',
+			//   subtext: 'Jumlah keluhan terbanyak & paling banyak terselesaikan'
+			// },
 			tooltip: {
 			  trigger: 'axis'
 			},
@@ -145,6 +193,7 @@
 			toolbox: {
 			  show: true,
 			  feature: {
+			  	mark : {show: true},
 			  	magicType:{
 			  		show:true,
 			  		title:{

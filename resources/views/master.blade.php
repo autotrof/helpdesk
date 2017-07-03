@@ -35,6 +35,9 @@
       table.with-padding tr td{
         padding: 3px;
       }
+      .btn-flat{
+        border-radius: 0;
+      }
     </style>
   </head>
 
@@ -232,7 +235,7 @@
 
     @yield('scripts')
     <!-- Custom Theme Scripts -->
-    <!-- <script src="/build/js/custom.min.js"></script> -->
+    <script src="/build/js/custom.js"></script>
     <script type="text/javascript">
       $(".select2").select2();
       moment.lang('id');

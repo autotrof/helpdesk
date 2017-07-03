@@ -16,7 +16,10 @@ class CreatePengumumanTable extends Migration
             $table->increments('id');
             $table->string('gambar')->nullable();
             $table->string('dokumen')->nullable();
+            $table->string('judul');
             $table->text('isi');
+            $table->dateTime('start_pengumuman');
+            $table->dateTime('stop_pengumuman');
             $table->timestamps();
         });
     }

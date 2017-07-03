@@ -10,6 +10,7 @@ use App\User;
 use Auth;
 use App\JenisLaporan;
 use App\Laporan;
+use App\Pengumuman;
 
 class GeneralController extends Controller
 {
@@ -42,6 +43,7 @@ class GeneralController extends Controller
 	public function pengumuman(Request $request)
 	{
 		$data['TAG'] = 'pengumuman';
+		$data['list_pengumuman'] = Pengumuman::all();
 		return view('pages.pengumuman',$data);	
 	}
 
@@ -61,8 +63,31 @@ class GeneralController extends Controller
     	$data['TAG'] = 'summary';
     	$data['list_mayor_keluhan'] = JenisLaporan::with(['listLaporan','listSolvedLaporan','listUnSolvedLaporan','listOtherLaporan'])->has('listLaporan')->get()->sortByDesc(function($jenisLaporan){
 	   		return $jenisLaporan->listLaporan->count();
-	   	})->take(12);
-	   	// dd($data['list_mayor_keluhan']);
+	   	});
+	   	$data['max_keluhan'] = JenisLaporan::with(['listLaporan'])->has('listLaporan')->get()->sortByDesc(function($jenisLaporan){
+	   		return $jenisLaporan->listLaporan->count();
+	   	})->take(1);
+	   	$data['min_keluhan'] = JenisLaporan::with(['listLaporan'])->has('listLaporan')->get()->sortBy(function($jenisLaporan){
+	   		return $jenisLaporan->listLaporan->count();
+	   	})->take(1);
+	   	$data['max_keluhan_selesai'] = JenisLaporan::with(['listSolvedLaporan'])->has('listLaporan')->get()->sortByDesc(function($jenisLaporan){
+	   		return $jenisLaporan->listSolvedLaporan->count();
+	   	})->take(1);
+	   	$data['max_keluhan_tidak_selesai'] = JenisLaporan::with(['listUnSolvedLaporan'])->has('listLaporan')->get()->sortByDesc(function($jenisLaporan){
+	   		return $jenisLaporan->listUnSolvedLaporan->count();
+	   	})->take(1);
+	   	// $data['max_keluhan_belum_selesai'] = JenisLaporan::with(['listOtherLaporan'])->has('listLaporan')->get()->sortByDesc(function($jenisLaporan){
+	   	// 	return $jenisLaporan->listOtherLaporan->count();
+	   	// })->take(1);
+	   	$data['min_keluhan_selesai'] = JenisLaporan::with(['listSolvedLaporan'])->has('listLaporan')->get()->sortBy(function($jenisLaporan){
+	   		return $jenisLaporan->listSolvedLaporan->count();
+	   	})->take(1);
+	   	$data['min_keluhan_tidak_selesai'] = JenisLaporan::with(['listUnSolvedLaporan'])->has('listLaporan')->get()->sortBy(function($jenisLaporan){
+	   		return $jenisLaporan->listUnSolvedLaporan->count();
+	   	})->take(1);
+	   	// $data['min_keluhan_belum_selesai'] = JenisLaporan::with(['listOtherLaporan'])->has('listLaporan')->get()->sortBy(function($jenisLaporan){
+	   	// 	return $jenisLaporan->listOtherLaporan->count();
+	   	// })->take(1);
 		return view('pages.summary',$data);
     }
 

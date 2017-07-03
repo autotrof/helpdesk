@@ -60,7 +60,7 @@
 								<th>Judul</th>
 								<th>Tanggal Start</th>
 								<th>Tanggal Selesai</th>
-								<th style="width: 99px;"></th>
+								<!-- <th style="width: 99px;"></th> -->
 							</tr>
 						</thead>
 					</table>
@@ -159,23 +159,24 @@
                   "orderable":false,
                   "targets": 1,
                   "render": function(data, type, row, meta){
-                      return row.start_pengumuman;
+                      return moment(row.start_pengumuman).format('LLL');
                   }
                 },
                 {
                   "orderable":false,
                   "targets": 2,
                   "render": function(data, type, row, meta){
-                    return row.stop_pengumuman;
-                  }
-                },
-                {
-                  "orderable":false,
-                  "targets": 3,
-                  "render": function(data, type, row, meta){
-                    return "<div class='btn-group'><button class='btn btn-primary btn-sm'><i class='fa fa-eye'></i></button><button class='btn btn-warning btn-sm'><i class='fa fa-edit'></i></button><button class='btn btn-danger btn-sm'><i class='fa fa-trash'></i></button></div>";
+                    return moment(row.stop_pengumuman).format('LLL');
                   }
                 }
+                // ,
+                // {
+                //   "orderable":false,
+                //   "targets": 3,
+                //   "render": function(data, type, row, meta){
+                //     return "<div class='btn-group'><button class='btn btn-primary btn-sm'><i class='fa fa-eye'></i></button><button class='btn btn-warning btn-sm'><i class='fa fa-edit'></i></button><button class='btn btn-danger btn-sm'><i class='fa fa-trash'></i></button></div>";
+                //   }
+                // }
             ],
             "aaSorting": [ [0,'asc'] ]
       	});

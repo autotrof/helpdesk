@@ -59,6 +59,10 @@ class GeneralController extends Controller
     public function internSummary(Request $request)
     {
     	$data['TAG'] = 'summary';
+    	$data['list_mayor_keluhan'] = JenisLaporan::with(['listLaporan','listSolvedLaporan','listUnSolvedLaporan','listOtherLaporan'])->has('listLaporan')->get()->sortByDesc(function($jenisLaporan){
+	   		return $jenisLaporan->listLaporan->count();
+	   	})->take(12);
+	   	// dd($data['list_mayor_keluhan']);
 		return view('pages.summary',$data);
     }
 
@@ -86,5 +90,79 @@ class GeneralController extends Controller
     		return response()->json(['result'=>true,'token'=>csrf_token()]);
     	}
     	return response()->json(['result'=>false,'message'=>'username tidak boleh kosong','token'=>csrf_token()]);
+    }
+
+    public function generateDummyLaporan(Request $request)
+    {
+    	$jenis = JenisLaporan::all();
+    	foreach ($jenis as $j) {
+    		$faker = \Faker\Factory::create();
+    		for ($i=0; $i < $faker->numberBetween($min = 10, $max = 300); $i++) {
+    			$faker = \Faker\Factory::create('da_DK');
+    			if ($i%5==0) {
+    				Laporan::create([
+			            'jenis_laporan_id'=>$j->id,
+			            'deskripsi'=>$faker->text,
+			            'nip_pelapor'=>$faker->p,
+			            'lokasi'=>$faker->citySuffix,
+			            'waktu_melapor'=>\Carbon\Carbon::now()->addDays($faker->numberBetween($min = -100, $max = 300))->addMinutes($faker->numberBetween($min = -100, $max = 300))
+			        ]);
+    			}elseif ($i%5==1) {
+    				Laporan::create([
+			            'jenis_laporan_id'=>$j->id,
+			            'deskripsi'=>$faker->text,
+			            'nip_pelapor'=>$faker->p,
+			            'lokasi'=>$faker->citySuffix,
+			            'waktu_melapor'=>\Carbon\Carbon::now()->addDays($faker->numberBetween($min = -100, $max = 300))->addMinutes($faker->numberBetween($min = -100, $max = 300)),
+			            'dugaan'=>$faker->sentence($nbWords = 6, $variableNbWords = true),
+			            'waktu_dugaan'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'status'=>'Proses'
+			        ]);
+    			}elseif($i%5==2){
+    				Laporan::create([
+			            'jenis_laporan_id'=>$j->id,
+			            'deskripsi'=>$faker->text,
+			            'nip_pelapor'=>$faker->p,
+			            'lokasi'=>$faker->citySuffix,
+			            'waktu_melapor'=>\Carbon\Carbon::now()->addDays($faker->numberBetween($min = -100, $max = 300))->addMinutes($faker->numberBetween($min = -100, $max = 300)),
+			            'dugaan'=>$faker->sentence($nbWords = 6, $variableNbWords = true),
+			            'waktu_dugaan'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'aksi'=>$faker->sentence($nbWords = 10, $variableNbWords = true),
+			            'waktu_aksi'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'status'=>'Proses'
+			        ]);
+    			}elseif($i%5==3){
+    				$status = $faker->randomElements($array = array ('Terselesaikan','Tidak Terselesaikan'), $count = 1);
+    				Laporan::create([
+			            'jenis_laporan_id'=>$j->id,
+			            'deskripsi'=>$faker->text,
+			            'nip_pelapor'=>$faker->p,
+			            'lokasi'=>$faker->citySuffix,
+			            'waktu_melapor'=>\Carbon\Carbon::now()->addDays($faker->numberBetween($min = -100, $max = 300))->addMinutes($faker->numberBetween($min = -100, $max = 300)),
+			            'dugaan'=>$faker->sentence($nbWords = 6, $variableNbWords = true),
+			            'waktu_dugaan'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'aksi'=>$faker->sentence($nbWords = 10, $variableNbWords = true),
+			            'waktu_aksi'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'waktu_final'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'status'=>$status[0]
+			        ]);
+    			}else{
+    				Laporan::create([
+			            'jenis_laporan_id'=>$j->id,
+			            'deskripsi'=>$faker->text,
+			            'nip_pelapor'=>$faker->p,
+			            'lokasi'=>$faker->citySuffix,
+			            'waktu_melapor'=>\Carbon\Carbon::now()->addDays($faker->numberBetween($min = -100, $max = 300))->addMinutes($faker->numberBetween($min = -100, $max = 300)),
+			            'dugaan'=>$faker->sentence($nbWords = 6, $variableNbWords = true),
+			            'waktu_dugaan'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'aksi'=>$faker->sentence($nbWords = 10, $variableNbWords = true),
+			            'waktu_aksi'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'waktu_final'=>$faker->dateTimeBetween($startDate = '-2 years', $endDate = 'now', $timezone = date_default_timezone_get()),
+			            'status'=>'Terselesaikan'
+			        ]);
+    			}
+	    	}
+    	}
+    	return "MARI";
     }
 }

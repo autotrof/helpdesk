@@ -35,7 +35,19 @@ class LaporanController extends Controller
         if($request->input('search.value')!=''){
             $data = $data
             	->where('nip_pelapor','like','%'.$request->input('search.value').'%')
-                ->orWhere('deskripsi','like','%'.$request->input('search.value').'%');
+                ->orWhere('deskripsi','like','%'.$request->input('search.value').'%')
+                ->orWhere('lokasi','like','%'.$request->input('search.value').'%')
+                ->orWhere('status','like','%'.$request->input('search.value').'%')
+                ->orWhere('dugaan','like','%'.$request->input('search.value').'%')
+                ->orWhere('aksi','like','%'.$request->input('search.value').'%')
+                ->orWhere('waktu_melapor','like','%'.$request->input('search.value').'%')
+                ->orWhere('waktu_dugaan','like','%'.$request->input('search.value').'%')
+                ->orWhere('waktu_aksi','like','%'.$request->input('search.value').'%')
+                ->orWhere('waktu_final','like','%'.$request->input('search.value').'%')
+                ->orWhereHas('jenisLaporanInfo',function($q)use($request){
+                    $q->where('kode','like','%'.$request->input('search.value').'%');
+                })
+                ;
         }
 
         $recordsFiltered = $data->count();
@@ -72,9 +84,32 @@ class LaporanController extends Controller
     	$laporan = Laporan::find($request->input('id'));
     	if ($laporan!=null) {
     		$laporan->dugaan = $request->input('dugaan');
+    		$laporan->waktu_dugaan = \Carbon\Carbon::now();
+    		$laporan->status = "Proses";
     		$laporan->save();
     		return response()->json(['result'=>true],200);
     	}
     	return response()->json(['result'=>false],200);
+    }
+
+    public function setAksi(Request $request)
+    {
+        $laporan = Laporan::find($request->input('id'));
+        if ($laporan!=null) {
+            $laporan->aksi = $request->input('aksi');
+            $laporan->waktu_aksi = \Carbon\Carbon::now();
+            $laporan->save();
+            return response()->json(['result'=>true],200);
+        }
+        return response()->json(['result'=>false],200);
+    }
+
+    public function setStatusFinal(Request $request)
+    {
+    	$laporan = Laporan::find($request->input('id'));
+    	$laporan->waktu_final = \Carbon\Carbon::now();
+    	$laporan->status = $request->input('status');
+    	$laporan->save();
+    	return response()->json(['result'=>true]);
     }
 }

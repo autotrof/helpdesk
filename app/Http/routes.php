@@ -10,6 +10,7 @@
 | and give it the controller to call when that URI is requested.
 |
 */
+// Route::get('/dummy','GeneralController@generateDummyLaporan');
 Route::get('/laporan_data',[
     'uses'=>'LaporanController@getAll',
     'as'=>'laporan_get_all'
@@ -61,4 +62,12 @@ Route::group(['prefix'=>'intern','as'=>'intern.','middleware'=>'intern_only'],fu
 		'uses'=>'LaporanController@setDugaan',
 		'as'=>'dugaan'
 	]);
+    Route::post('/aksi',[
+        'uses'=>'LaporanController@setAksi',
+        'as'=>'aksi'
+    ]);
+    Route::post('/status_final',[
+    	'uses'=>'LaporanController@setStatusFinal',
+    	'as'=>'status_final'
+    ]);
 });

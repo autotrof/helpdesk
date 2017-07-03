@@ -65,7 +65,7 @@
           <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-question-circle"></i> Keluhan <a>{{$mayor_keluhan->kode}}</a></span>
               <div class="count">{{$mayor_keluhan->listLaporan->count()}}</div>
-              <span class="count_bottom"><i class="green">{{$mayor_keluhan->listLaporan->count()/$total_keluhan*100}}% </i> Dari {{$total_keluhan}} keluhan</span>
+              <span class="count_bottom"><i class="green">{{round($mayor_keluhan->listLaporan->count()/$total_keluhan*100,2)}}% </i> Dari {{$total_keluhan}} keluhan</span>
           </div>
         @endforeach
       </div>
@@ -91,6 +91,27 @@
         </div>
       </div>
     </div>
+    <div id="aksi-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Aksi</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="id-laporan-aksi" class="form-control">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <textarea id="aksi-input" rows="5" class="form-control"></textarea>
+                            <button type="button" id="btn-submit-aksi" style="margin-top: 5px;" class="btn btn-primary pull-right">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
   @endif
 
   <div class="x_panel">
@@ -108,10 +129,10 @@
               <thead>
               <tr>
                   <th>NIP</th>
-                  <th>Data Laporan</th>
-                  <th>Diagnosa</th>
-                  <th>Aksi</th>
-                  <th>Status</th>
+                  <th style="width: 300px;">Data Laporan</th>
+                  <th style="width: 19%;">Diagnosa</th>
+                  <th style="width: 19%;">Aksi</th>
+                  <th style="width: 66px;">Status</th>
               </tr>
               </thead>
           </table>
@@ -166,12 +187,12 @@
                       if (row.gambar!=null) {
                         show += "<img class='img-thumbnail' onclick='previewImage(\""+row.gambar+"\")' src='/laporan/img/"+row.gambar+"' style='width:300px;border:1px solid #b7b6b6;'/><br>";
                       }
-                      show+="<strong>Jenis :</strong> "+row.jenis_laporan_info.kode+"<br/>";
-                      show+="<strong>Deskripsi :</strong>"+row.deskripsi;
+                      show+="<table class='with-padding'><tr><td><strong>Jenis</strong></td><td> : </td><td>"+row.jenis_laporan_info.kode+"</td></tr>";
+                      show+="<tr><td valign='top'><strong>Deskripsi</strong></td><td valign='top'> : </td><td>"+row.deskripsi+"</td></tr>";
                       if (row.lokasi!="") {
-                        show+="<br/><strong>Lokasi : </strong>"+row.lokasi;
+                        show+="<tr><td><strong>Lokasi</strong></td><td> : </td><td>"+row.lokasi+"</td></tr>";
                       }
-                      show+="<br/><strong>Waktu : </strong>"+row.waktu_melapor;
+                      show+="<tr><td><strong>Waktu</strong></td><td> : </td><td>"+moment(row.waktu_melapor).format('LLL')+"</td></tr></table>";
                       return show;
                   }
                 },
@@ -181,15 +202,13 @@
                   "render": function(data, type, row, meta){
                     @if(session('role')=='intern')
                       if(row.dugaan==null)
-                        return "<button onclick='openDugaanModal("+row.id+",\""+row.jenis_laporan_info.kode+"\")' class='btn btn-primary btn-sm'>Isikan Dugaan</button>";
-                      else
-                        return row.dugaan;
+                        return "<button onclick='openDugaanModal("+row.id+",\""+row.jenis_laporan_info.kode+"\")' class='btn btn-primary btn-sm  btn-block'>Isikan Dugaan</button>";
                     @else
                       if(row.dugaan==null)
                         return "<strong style='color:red;'>Belum terdiagnosa</strong>";
-                      else
-                        return row.dugaan;
                     @endif
+                    else
+                        return row.dugaan+"<br><small style='opacity: 0.8;'>"+moment(row.waktu_dugaan).format('LLL')+"</small>";
                   }
                 },
                 {
@@ -198,24 +217,35 @@
                   "render": function(data, type, row, meta){
                     @if(session('role')=='intern')
                       if(row.dugaan!=null && row.aksi==null)
-                        return "<button class='btn btn-primary btn-sm'>Isikan Aksi</button>";
-                      else if(row.dugaan!=null && row.aksi!=null)
-                        return row.aksi;
+                        return "<button onclick='openAksiModal("+row.id+",\""+row.kode+"\")' class='btn btn-primary btn-sm btn-block'>Isikan Aksi</button>";
                       else if(row.dugaan==null)
                         return "<strong style='color:red;'>Belum ada aksi</strong>";
                     @else
                       if(row.aksi==null)
                         return "<strong style='color:red;'>Belum ada aksi</strong>";
-                      else
-                        return row.aksi;
                     @endif
+                    else
+                        return row.aksi+"<br><small style='opacity: 0.8;'>"+moment(row.waktu_aksi).format('LLL')+"</small>";
                   }
                 },
                 {
                   "orderable":false,
                   "targets": 4,
                   "render": function(data, type, row, meta){
-                    return "<strong style='color:red;'>"+row.status+"</strong>";
+                      var warna = 'red';
+                      var show = '';
+                      if(row.status=='Proses') warna = 'blue';
+                      else if(row.status=='Terselesaikan') warna = 'green';
+                      @if(session('role')=='intern')
+                      if(row.aksi!=null && (row.status!='Terselesaikan' && row.status!='Tidak Terselesaikan' )){
+                          show+="<div class='btn-group'><button class='btn btn-success btn-sm btn-status-final' onclick='saceStatusFinal("+row.id+",\"Terselesaikan\")'><i class='fa fa-check'></i></button><button class='btn btn-danger btn-sm btn-status-final' onclick='saceStatusFinal("+row.id+",\"Tidak Terselesaikan\")'><i class='fa fa-close'></i></button></div>";
+                      }else{
+                          show+="<strong style='color:"+warna+";'>"+row.status+"</strong>";
+                      }
+                      @else
+                          show+="<strong style='color:"+warna+";'>"+row.status+"</strong>";
+                      @endif
+                    return show;
                   }
                 }
             ],
@@ -243,6 +273,31 @@
           $("#dugaan-input").attr("placeholder","Isikan dugaan untuk laporan "+kode);
           $("#dugaan-modal").modal('show');
         }
+        function openAksiModal(id, kode) {
+            $("#id-laporan-aksi").val(id);
+            $("#aksi-input").text("");
+            $("#aksi-input").attr("placeholder","Isikan aksi yang sedang dilakukan untuk laporan "+kode);
+            $("#aksi-modal").modal('show');
+        }
+        function saceStatusFinal(id,status) {
+          var c;
+          $(".btn-status-final").prop('disabled',true);
+          if(status=='Terselesaikan')
+            c = confirm("Anda yakin keluhan tersebut telah terselesaikan ?");
+          else
+            c = confirm("Anda yakin keluhan tersebut tidak terselesaikan ?");
+          if(c===true){
+            $.ajax({
+              url:"{{route('intern.status_final')}}",
+              data:{id:id,status:status},
+              method:"POST",
+              success:function(res){
+                $(".btn-status-final").prop('disabled',false);
+                $("#btn-reload").click();
+              }
+            });
+          }
+        }
         $("#btn-submit-dugaan").click(function(){
           var dugaan = $("#dugaan-input").val().trim();
           var id = $("#id-laporan-dugaan").val();
@@ -250,17 +305,38 @@
           btn.prop("disabled",true);
           if (dugaan!="") {
             $.ajax({
-              url:"{{route('dugaan')}}",
+              url:"{{route('intern.dugaan')}}",
               method:"POST",
               data:{dugaan:dugaan,id:id},
               success:function(res){
-                btn.prop("disabled",false);
-                console.log(res);
+                  btn.prop("disabled",false);
+                  $("#dugaan-modal").modal('hide');
+                  $("#btn-reload").click();
               }
             });
           }else{
             alert("Dugaan/diagnosa wajib diisi");
           }
+        });
+        $("#btn-submit-aksi").click(function(){
+            var aksi = $("#aksi-input").val().trim();
+            var id = $("#id-laporan-aksi").val();
+            var btn = $(this);
+            btn.prop("disabled",true);
+            if (aksi!="") {
+                $.ajax({
+                    url:"{{route('intern.aksi')}}",
+                    method:"POST",
+                    data:{aksi:aksi,id:id},
+                    success:function(res){
+                        btn.prop("disabled",false);
+                        $("#aksi-modal").modal('hide');
+                        $("#btn-reload").click();
+                    }
+                });
+            }else{
+                alert("Aksi wajib diisi");
+            }
         });
       @endif
       $("#btn-reload").on('click',function(){

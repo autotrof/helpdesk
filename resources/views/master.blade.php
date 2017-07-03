@@ -31,6 +31,11 @@
     @yield('style')
     <!-- Custom Theme Style -->
     <link href="/build/css/custom.min.css" rel="stylesheet">
+    <style>
+      table.with-padding tr td{
+        padding: 3px;
+      }
+    </style>
   </head>
 
   <body class="nav-md">
@@ -219,17 +224,18 @@
     <script src="/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js"></script>
     -->
     <!-- bootstrap-daterangepicker -->
-    <script src="/vendors/moment/min/moment.min.js"></script>
+    {{--<script src="/vendors/moment/min/moment.min.js"></script>--}}
+    <script src="https://momentjs.com/downloads/moment-with-locales.min.js"></script>
     <script src="/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
 
     <script src="/js/jquery.form.min.js"></script>
 
     @yield('scripts')
     <!-- Custom Theme Scripts -->
-    <script src="/build/js/custom.min.js"></script>
+    <!-- <script src="/build/js/custom.min.js"></script> -->
     <script type="text/javascript">
       $(".select2").select2();
-      
+      moment.lang('id');
       $(function(){
         @if(session('role')!='intern')
           $("#menu_toggle").trigger( "click" );
@@ -237,13 +243,13 @@
                 e.preventDefault();
                 var username = $("#username-login").val().trim();
                 var password = $("#password-login").val().trim();
-                $("#button-login").addClass('disable');
+                $("#button-login").prop('disabled',true);
                 $.ajax({
                     url:"{{route('login')}}",
                     method:"POST",
                     data:{username:username,password:password,_token:"{{csrf_token()}}"},
                     success:function(res){
-                        $("#button-login").removeClass('disable');
+                        $("#button-login").prop('disabled',false);
                         if(res.hasil===true){
                             location.reload();
                         }else{

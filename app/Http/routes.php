@@ -58,6 +58,10 @@ Route::group(['prefix'=>'intern','as'=>'intern.','middleware'=>'intern_only'],fu
         'uses'=>'PengumumanController@getData',
         'as'=>'pengumuman_data'
     ]);
+    Route::get('pengumuman_single/{id?}',[
+        'uses'=>'PengumumanController@getSingle',
+        'as'=>'pengumuman_single'
+    ]);
     Route::post('/pengumuman','PengumumanController@postPengumuman');
 	Route::post('/setting',[
 		'uses'=>'GeneralController@updateSetting',

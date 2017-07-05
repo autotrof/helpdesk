@@ -31,6 +31,7 @@
 				</div>
 				<div class="x_content">
 					<form id="form-pengumuman" method="post" data-parsley-validate action="" enctype="multipart/form-data">
+						<input type="hidden" name="id" id="id-pengumuman">
 						<label>Judul Pengumuman <small>*</small></label>
 						<input id="judul-pengumuman" type="text" required class="form-control" name="judul">
 						<br>
@@ -60,10 +61,26 @@
 								<th>Judul</th>
 								<th>Tanggal Start</th>
 								<th>Tanggal Selesai</th>
-								<!-- <th style="width: 99px;"></th> -->
+								<th style="width: 99px;"></th>
 							</tr>
 						</thead>
 					</table>
+				</div>
+			</div>
+		</div>
+		<div id="pengumuman-view-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+						</button>
+						<h4 class="modal-title" id="judul-pengumuman-view">View Pengumuman</h4>
+					</div>
+					<div class="modal-body">
+						<div id="isi-pengumuman-view"></div>
+						<hr>
+						<small id="tanggal-pengumuman-view"></small>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -169,14 +186,14 @@
                     return moment(row.stop_pengumuman).format('LLL');
                   }
                 }
-                // ,
-                // {
-                //   "orderable":false,
-                //   "targets": 3,
-                //   "render": function(data, type, row, meta){
-                //     return "<div class='btn-group'><button class='btn btn-primary btn-sm'><i class='fa fa-eye'></i></button><button class='btn btn-warning btn-sm'><i class='fa fa-edit'></i></button><button class='btn btn-danger btn-sm'><i class='fa fa-trash'></i></button></div>";
-                //   }
-                // }
+                ,
+                {
+                  "orderable":false,
+                  "targets": 3,
+                  "render": function(data, type, row, meta){
+                    return "<div class='btn-group'><button onclick='viewPengumuman("+row.id+")' class='btn btn-primary btn-sm btn-view' data-id='"+row.id+"'><i class='fa fa-eye'></i></button><button onclick='viewEditPengumuman("+row.id+")' class='btn btn-warning btn-sm btn-edit' data-id='"+row.id+"'><i class='fa fa-edit'></i></button><button onclick='deletePengumuman("+row.id+")' class='btn btn-danger btn-sm btn-delete' data-id='"+row.id+"'><i class='fa fa-trash'></i></button></div>";
+                  }
+                }
             ],
             "aaSorting": [ [0,'asc'] ]
       	});
@@ -186,13 +203,14 @@
 			var c = confirm("Apakah anda yakin pengumuman ini sudah benar ? Silahkan cek ulang jika masih perlu perbaikan");
 			if(c===true){
 				$("#btn-submit-pengumuman").prop('disabled',true);
+				var id = $("#id-pengumuman").val();
 				var judul = $("#judul-pengumuman").val().trim();
 				var isi = tinyMCE.get('isi-pengumuman').getContent();
 				var tanggal = $("#tanggal-pengumuman").val().trim();
 				$.ajax({
 					url:"{{route('intern.pengumuman')}}",
 					method:"POST",
-					data:{judul:judul,isi:isi,tanggal:tanggal},
+					data:{judul:judul,isi:isi,tanggal:tanggal,id:id},
 					success:function(res){
 						$("input").val('');
 						tinyMCE.get('isi-pengumuman').setContent('');
@@ -211,5 +229,35 @@
 			timePicker24Hour:true
 		});
 		$('#tanggal-pengumuman').val('');
+
+		function viewPengumuman(id) {
+			$(".btn-view[data-id='"+id+"']").prop('disabled',true);
+			$.ajax({
+				url:"{{route('intern.pengumuman_single')}}/"+id,
+				success:function(res){
+					$(".btn-view[data-id='"+id+"']").prop('disabled',false);
+					$("#judul-pengumuman-view").text(res.judul);
+					$("#isi-pengumuman-view").html(res.isi);
+					$("#tanggal-pengumuman-view").text(moment(res.start_pengumuman).format('LLL')+' - '+moment(res.stop_pengumuman).format('LLL'));
+					$("#pengumuman-view-modal").modal('show');
+				}
+			});
+		}
+
+		function viewEditPengumuman(id) {
+			$(".btn-edit[data-id='"+id+"']").prop('disabled',true);
+			$.ajax({
+				url:"{{route('intern.pengumuman_single')}}/"+id,
+				success:function(res){
+					$(".btn-edit[data-id='"+id+"']").prop('disabled',false);
+					$("#judul-pengumuman").val(res.judul);
+					tinymce.get('isi-pengumuman').setContent(res.isi);
+					// $("#tanggal-pengumuman").val(res.start_pengumuman+' - '+res.stop_pengumuman);
+					$('#tanggal-pengumuman').data('daterangepicker').setStartDate(res.start_pengumuman);
+					$('#tanggal-pengumuman').data('daterangepicker').setEndDate(res.stop_pengumuman);
+					$("#id-pengumuman").val(res.id);
+				}
+			});	
+		}
 	</script>
 @stop

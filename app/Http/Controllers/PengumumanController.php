@@ -12,13 +12,22 @@ class PengumumanController extends Controller
 {
     public function postPengumuman(Request $request)
     {
-    	$tanggal = explode(' - ', $request->input('tanggal'));
-    	Pengumuman::create([
-    		'judul'=>$request->input('judul'),
-    		'isi'=>$request->input('isi'),
-    		'start_pengumuman'=>$tanggal[0],
-    		'stop_pengumuman'=>$tanggal[1]
-    	]);
+        $tanggal = explode(' - ', $request->input('tanggal'));
+        if ($request->input('id')!='') {
+            Pengumuman::where('id',$request->input('id'))->update([
+                'judul'=>$request->input('judul'),
+                'isi'=>$request->input('isi'),
+                'start_pengumuman'=>$tanggal[0],
+                'stop_pengumuman'=>$tanggal[1]    
+            ]);
+        }else{
+            Pengumuman::create([
+                'judul'=>$request->input('judul'),
+                'isi'=>$request->input('isi'),
+                'start_pengumuman'=>$tanggal[0],
+                'stop_pengumuman'=>$tanggal[1]
+            ]);
+        }
     	return response()->json(['result'=>true]);
     }
 
@@ -54,5 +63,11 @@ class PengumumanController extends Controller
             'data'=>$data,
             'request'=>$request->all(),
         ],200);
+    }
+
+    public function getSingle(Request $request, $id)
+    {
+        $pengumuman = Pengumuman::find($id);
+        return response()->json($pengumuman);
     }
 }

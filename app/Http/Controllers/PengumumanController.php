@@ -60,8 +60,7 @@ class PengumumanController extends Controller
         	'draw'=>$request->input('draw'),
             'recordsTotal'=>count($data)/$request->input('length'),
             'recordsFiltered'=>$recordsFiltered,
-            'data'=>$data,
-            'request'=>$request->all(),
+            'data'=>$data
         ],200);
     }
 
@@ -69,5 +68,11 @@ class PengumumanController extends Controller
     {
         $pengumuman = Pengumuman::find($id);
         return response()->json($pengumuman);
+    }
+
+    public function delete(Request $request, $id)
+    {
+        Pengumuman::where('id',$id)->delete();
+        return response()->json(['result'=>true]);
     }
 }

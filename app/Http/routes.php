@@ -63,6 +63,10 @@ Route::group(['prefix'=>'intern','as'=>'intern.','middleware'=>'intern_only'],fu
         'as'=>'pengumuman_single'
     ]);
     Route::post('/pengumuman','PengumumanController@postPengumuman');
+    Route::get('/delete_pengumuman/{id?}',[
+        'uses'=>'PengumumanController@delete',
+        'as'=>'delete_pengumuman'
+    ]);
 	Route::post('/setting',[
 		'uses'=>'GeneralController@updateSetting',
 		'as'=>'setting'

@@ -259,5 +259,19 @@
 				}
 			});	
 		}
+
+		function deletePengumuman(id) {
+			var c = confirm("Apakah anda yakin akan menghapus pengumuman ini ?");
+			if(c===true){
+				$(".btn-delete[data-id='"+id+"']").prop('disabled',true);
+				$.ajax({
+					url:"{{route('intern.delete_pengumuman')}}/"+id,
+					success:function(res){
+						$(".btn-delete[data-id='"+id+"']").prop('disabled',false);
+						table.ajax.reload();
+					}
+				});
+			}
+		}
 	</script>
 @stop

@@ -43,7 +43,8 @@ class GeneralController extends Controller
 	public function pengumuman(Request $request)
 	{
 		$data['TAG'] = 'pengumuman';
-		$data['list_pengumuman'] = Pengumuman::all();
+		$data['list_pengumuman'] = Pengumuman::whereDate('start_pengumuman','<=',\Carbon\Carbon::now())->whereDate('stop_pengumuman','>=',\Carbon\Carbon::now())->get();
+		// $data['list_pengumuman'] = Pengumuman::all();
 		return view('pages.pengumuman',$data);	
 	}
 

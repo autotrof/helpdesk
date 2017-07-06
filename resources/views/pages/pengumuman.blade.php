@@ -12,6 +12,7 @@
     <style type="text/css">
     	table{
     		border-collapse: collapse;
+    		width: 100%;
     	}
     	table tr td{
     		border: 1px solid gray;
